@@ -48,9 +48,11 @@ export async function submitTutor(
   }
 
   try {
-    await prisma.tutor.create({
+    const tutorName = validated.data.fullName || validated.data.name || "Tutor";
+
+    const dbTutor = await prisma.tutor.create({
       data: {
-        name: validated.data.fullName || validated.data.name || "",
+        name: tutorName,
         phone: validated.data.phone,
         email: validated.data.email,
         qualification: validated.data.qualification,
@@ -62,11 +64,37 @@ export async function submitTutor(
       },
     });
 
+    const attachments: Array<{ filename: string; content: Buffer }> = [];
+    if (validated.data.resume && validated.data.resume.startsWith("data:")) {
+      const matches = validated.data.resume.match(/^data:(.+);base64,(.+)$/);
+      if (matches && matches.length >= 3) {
+        const contentType = matches[1];
+        const base64Data = matches[2];
+        const fileBuffer = Buffer.from(base64Data, "base64");
+
+        let extension = "pdf";
+        if (contentType === "application/msword") {
+          extension = "doc";
+        } else if (
+          contentType ===
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ) {
+          extension = "docx";
+        }
+
+        attachments.push({
+          filename: `resume-${tutorName.replace(/[^a-zA-Z0-9.-]/g, "_")}.${extension}`,
+          content: fileBuffer,
+        });
+      }
+    }
+
     const adminEmail = process.env.ADMIN_EMAIL || "support@s2atutoring.com";
     await resend.emails.send({
       from: "S2A Tutoring <onboarding@resend.dev>",
       to: adminEmail,
-      subject: `New Tutor Application from ${validated.data.name}`,
+      subject: `New Tutor Application from ${tutorName}`,
+      attachments: attachments.length > 0 ? attachments : undefined,
       html: `
         <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0;">
           <div style="background: linear-gradient(135deg, #0F172A 0%, #1e3a5f 50%, #2563EB 100%); padding: 32px; text-align: center;">
@@ -77,14 +105,14 @@ export async function submitTutor(
             <div style="background: #f8fafc; border-radius: 12px; padding: 24px; margin-bottom: 16px;">
               <h2 style="color: #0F172A; margin: 0 0 16px; font-size: 18px;">Tutor Details</h2>
               <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Full Name</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${validated.data.fullName || validated.data.name}</td></tr>
+                <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Full Name</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${tutorName}</td></tr>
                 <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Phone</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;"><a href="tel:${validated.data.phone}" style="color: #2563EB;">${validated.data.phone}</a></td></tr>
                 <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Email</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;"><a href="mailto:${validated.data.email}" style="color: #2563EB;">${validated.data.email}</a></td></tr>
                 <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Qualification</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${validated.data.qualification}</td></tr>
                 <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Experience</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${validated.data.experience}</td></tr>
                 <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Subjects</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${validated.data.subjects}</td></tr>
                 <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Location</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${validated.data.location}</td></tr>
-                ${validated.data.resume ? `<tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Resume</td><td style="padding: 8px 0; color: #2563EB; font-weight: 600; font-size: 14px;">Uploaded</td></tr>` : ""}
+                ${validated.data.resume ? `<tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Resume</td><td style="padding: 8px 0; color: #2563EB; font-weight: 600; font-size: 14px;"><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://s2atutoring.com'}/api/resumes/${dbTutor.id}" style="color: #2563EB; text-decoration: underline;" target="_blank">Download Resume File</a></td></tr>` : ""}
               </table>
             </div>
             ${validated.data.message ? `<div style="background: #f8fafc; border-radius: 12px; padding: 24px;"><h3 style="color: #0F172A; margin: 0 0 8px; font-size: 16px;">Message</h3><p style="color: #475569; margin: 0; font-size: 14px; line-height: 1.6;">${validated.data.message}</p></div>` : ""}

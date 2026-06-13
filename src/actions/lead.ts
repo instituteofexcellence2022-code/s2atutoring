@@ -13,7 +13,7 @@ const leadSchema = z.object({
   grade: z.string().min(1, "Please select a class"),
   subject: z.string().min(1, "Please select a subject"),
   location: z.string().min(1, "Please select a location"),
-  timing: z.string().optional(),
+  preferredTiming: z.string().optional(),
   message: z.string().optional(),
   honeypot: z.string().optional(),
 });
@@ -65,7 +65,7 @@ export async function submitLead(
         class: validated.data.grade,
         subject: validated.data.subject,
         location: validated.data.location,
-        timing: validated.data.timing || "",
+        timing: validated.data.preferredTiming || "",
         message: validated.data.message || "",
       },
     });
@@ -93,7 +93,7 @@ export async function submitLead(
                 <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Class</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${validated.data.grade}</td></tr>
                 <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Subject</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${validated.data.subject}</td></tr>
                 <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Location</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${validated.data.location}</td></tr>
-                <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Timing</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${validated.data.timing || "Not specified"}</td></tr>
+                <tr><td style="padding: 8px 0; color: #64748b; font-size: 14px;">Timing</td><td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${validated.data.preferredTiming || "Not specified"}</td></tr>
               </table>
             </div>
             ${validated.data.message ? `<div style="background: #f8fafc; border-radius: 12px; padding: 24px;"><h3 style="color: #0F172A; margin: 0 0 8px; font-size: 16px;">Message</h3><p style="color: #475569; margin: 0; font-size: 14px; line-height: 1.6;">${validated.data.message}</p></div>` : ""}

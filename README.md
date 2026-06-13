@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# S2A Tutoring – Premium Home Tuition Website
 
-## Getting Started
+S2A Tutoring is a premium, modern, mobile-first home tuition agency website offering personalized one-to-one tuition services in the Delhi NCR region. Built with the latest React and Next.js technology, the platform is designed to convert visitors into students and attract elite tutors.
 
-First, run the development server:
+---
 
+## 🌟 Features
+
+- **Ultra-Premium Visuals**: Sleek dark/light theme, modern typography (Outfit/Inter), glassmorphism cards, and fluid Framer Motion animations.
+- **Production-Ready Serverless Architecture**: Fully compatible with Vercel and serverless database systems (no disk writes, zero CORS issues).
+- **Free-Tier Friendly**: Uses free resources for database (Neon/Supabase) and transaction emails (Resend).
+- **Serverless Resume Upload**: Client-side Base64 resume file encoding, stored securely in PostgreSQL and attached directly to admin email notifications.
+- **SEO Optimized**: Dynamic `sitemap.xml`, `robots.txt`, schema markup (`LocalBusiness`, `EducationalOrganization`, `FAQPage`), and strict semantic HTML.
+- **Secure Lead Capture**: Spam protection using Honeypots and in-memory rate limiting.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 16 (App Router, Server Actions, Dynamic API Routes)
+- **Styling**: Tailwind CSS v4, Lucide Icons, next-themes
+- **Animations**: Framer Motion
+- **Database**: Prisma ORM, PostgreSQL
+- **Email Delivery**: Resend SDK
+- **Forms & Validation**: React Hook Form, Zod Validation
+
+---
+
+## 🚀 Quick Start (Local Setup)
+
+### 1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/instituteofexcellence2022-code/s2atutoring.git
+cd s2atutoring
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Setup environment variables
+Copy `.env.example` to `.env` and fill in your credentials:
+```bash
+cp .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ensure you have your PostgreSQL Database URL and Resend API Key inside `.env`.
 
-## Learn More
+### 4. Setup the database schema
+Prisma will sync the models directly to your PostgreSQL database:
+```bash
+npx prisma db push
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 5. Start the development server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔑 Environment Variables Configuration
 
-## Deploy on Vercel
+| Variable | Description | Provider / Value |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | PostgreSQL connection string | Neon, Supabase, Railway (Free tier database) |
+| `RESEND_API_KEY` | Transactional email API key | [Resend](https://resend.com) (100 free emails/day) |
+| `NEXT_PUBLIC_APP_URL` | The production URL of your website | e.g. `https://s2atutoring.com` |
+| `ADMIN_EMAIL` | Destination email for leads and tutor applications | e.g. `support@s2atutoring.com` |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📦 Production Deployment (Vercel)
+
+1. **Deploy Repository**: Push your code to GitHub.
+2. **Create Vercel Project**: Link your GitHub repository to [Vercel](https://vercel.com).
+3. **Configure Environment Variables**: Add `DATABASE_URL`, `RESEND_API_KEY`, `NEXT_PUBLIC_APP_URL`, and `ADMIN_EMAIL` in the Vercel project settings.
+4. **Deploy**: Click **Deploy**. Vercel will build and host the application.
+5. **Database Initialization**: Run `npx prisma db push` locally pointed to your production `DATABASE_URL` (or configure a GitHub action) to ensure the table schema is provisioned.
+
+---
+
+## 📁 Project Structure
+
+```
+s2a-tutoring/
+├── prisma/
+│   └── schema.prisma                # Database Schema Definitions
+├── public/                          # Static Assets
+└── src/
+    ├── actions/                     # Next.js Server Actions (Leads, Tutors)
+    ├── app/
+    │   ├── api/
+    │   │   └── resumes/[id]/        # Decodes & downloads resumes from database
+    │   ├── layout.tsx               # Root Layout, global metadata & providers
+    │   ├── globals.css              # Custom Tailwind configuration
+    │   └── page.tsx                 # Main entry point rendering all sections
+    ├── components/
+    │   ├── layout/                  # Navbar, Footer, ScrollProgress
+    │   ├── sections/                # Modular landing page sections
+    │   └── shared/                  # Common icons and buttons
+    └── lib/                         # Helpers (Prisma client, rate-limit, resend client)
+```
+
+---
+
+## 📧 Contact & Support
+
+- **Email**: [support@s2atutoring.com](mailto:support@s2atutoring.com)
+- **Phone**: +91 8287549367
+- **Coverage**: Delhi NCR, India

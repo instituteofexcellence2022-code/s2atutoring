@@ -99,6 +99,15 @@ const labelClasses =
 
 const errorClasses = "mt-1 text-xs text-red-500 dark:text-red-400";
 
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 export default function TutorFormSection() {
   const [isPending, startTransition] = useTransition();
   const [submitState, setSubmitState] = useState<
@@ -166,23 +175,12 @@ export default function TutorFormSection() {
 
     startTransition(async () => {
       try {
-        // Upload file first if present
-        let resumeUrl = "";
+        let resumeBase64 = "";
         if (selectedFile) {
-          const formData = new FormData();
-          formData.append("file", selectedFile);
-          const uploadRes = await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
-          });
-          if (!uploadRes.ok) {
-            throw new Error("File upload failed");
-          }
-          const uploadData = await uploadRes.json();
-          resumeUrl = uploadData.url || "";
+          resumeBase64 = await fileToBase64(selectedFile);
         }
 
-        const result = await submitTutor({ ...data, resumeUrl });
+        const result = await submitTutor({ ...data, resume: resumeBase64 });
         if (result?.success) {
           setSubmitState("success");
           reset();
